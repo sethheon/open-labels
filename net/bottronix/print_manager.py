@@ -128,9 +128,11 @@ class PrintManager():
         if(print_count > 0):
             self.send_init_commands()
             self.print_img(grid_img,print_count)
+
         if(print_count_remainder > 0):
             self.send_init_commands()
             self.print_img(grid_img_remainder,1)
+
         self.close_printer()
 
     def open_printer(self):
@@ -150,29 +152,42 @@ class PrintManager():
             print("Printer port not open yet.")
             raise PrintException("Printer port not yet open")
         print("Sending init commands.")
+        
         # Set Margin 
         self.printer.write(bytes("SM0,0\r\n",'ascii', 'ignore'))
+
         # Set printer type thermal transfer
         self.printer.write(bytes("STt\r\n",'ascii', 'ignore'))
+        # self.printer.write(bytes("STd\r\n",'ascii', 'ignore'))
+
         # Set speed 5
         self.printer.write(bytes("SS3\r\n",'ascii', 'ignore'))
+
         # Disable double buffering
         self.printer.write(bytes("SB0\r\n",'ascii', 'ignore'))
+
         # Set density 14
         self.printer.write(bytes("SD14\r\n",'ascii', 'ignore'))
+
         # Set gap offset 0 
         self.printer.write(bytes("SA0\r\n",'ascii', 'ignore'))
+
         # Set Tearoff Postion 0
         self.printer.write(bytes("TA0\r\n",'ascii', 'ignore'))
+
         # Set label options width, gap and gap detection
         self.printer.write(bytes("SL"+str(int(float(self.label_width_mm)*constants.DOTS_PER_MM))+ \
-                                 ","+str(int(float(self.label_x_gap_mm)*constants.DOTS_PER_MM))+",G\r\n",'ascii', 'ignore'))
+                                 ","+str(int(float(self.label_x_gap_mm)*constants.DOTS_PER_MM))+",C\r\n",'ascii', 'ignore'))
+
         # Set print from top to bottom
         self.printer.write(bytes("SOT\r\n",'ascii', 'ignore'))
+
         # Set Label Width dots
         self.printer.write(bytes("SW"+str(int(float(self.paper_width_mm)*constants.DOTS_PER_MM))+"\r\n",'ascii', 'ignore'))
+
         # Disable cutting
         self.printer.write(bytes("CUTn\r\n",'ascii', 'ignore'))
+
         # Clear image buffer
         self.printer.write(bytes("CB\r\n",'ascii', 'ignore'))
         
@@ -185,8 +200,10 @@ class PrintManager():
             raise PrintException("Invalid print count "+str(print_count))
         
         print("Printing image.")
-        w,h= img.size
-#         print((w,h))
+
+        w, h = img.size
+        print((w, h))
+
         bi = BitImg()
         im_data = bi.get_bit_bytes(bytearray(img.getdata()))
         hx,lx = NumUtil.to_lh_int(self.label_x_offset_mm*DOTS_PER_MM)
